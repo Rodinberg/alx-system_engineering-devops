@@ -1,9 +1,6 @@
-# Test how web server setup featuring Nginx is doing under pressure
-exec {'24: Too many open files':
-  command => 'sed -i "s/15/4098/" /etc/default/nginx',
-  path    => '/usr/local/bin/:/bin/'
-} ->
-exec {'Restart nginx':
-  command => 'nginx restart',
-  path    => '/etc/init.d/'
+# Fixes an nginx site that can't handle multiple concurrent requests
+exec { 'fix--for-nginx':
+  command => "bash -c \"sed -iE 's/^ULIMIT=.*/ULIMIT=\\\"-n 8192\\\"/' \
+/etc/default/nginx; service nginx restart\"",
+  path    => '/usr/bin:/usr/sbin:/bin'
 }
